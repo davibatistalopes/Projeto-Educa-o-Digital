@@ -1,2 +1,2 @@
-# Projeto-Educa-o-Digital
+# Projeto
 Projeto
