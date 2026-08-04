@@ -206,8 +206,14 @@
   spanDislike.textContent = dislikes;
 
   btnLike.addEventListener("click", function () {
+    if (voto === "like") return; // já deu like
 
-    if (voto !== null) return;
+    // Se antes era dislike, remove
+    if (voto === "dislike") {
+      dislikes--;
+      spanDislike.textContent = dislikes;
+      localStorage.setItem("dislikes", dislikes);
+    }
 
     likes++;
     spanLike.textContent = likes;
@@ -215,13 +221,18 @@
     localStorage.setItem("likes", likes);
     localStorage.setItem("voto", "like");
 
-    voto = "like"; // trava o voto sem precisar atualizar
+    voto = "like";
   });
 
-
   btnDislike.addEventListener("click", function () {
+    if (voto === "dislike") return; // já deu dislike
 
-    if (voto !== null) return;
+    // Se antes era like, remove
+    if (voto === "like") {
+      likes--;
+      spanLike.textContent = likes;
+      localStorage.setItem("likes", likes);
+    }
 
     dislikes++;
     spanDislike.textContent = dislikes;
@@ -229,7 +240,7 @@
     localStorage.setItem("dislikes", dislikes);
     localStorage.setItem("voto", "dislike");
 
-    voto = "dislike"; // trava o voto sem precisar atualizar
+    voto = "dislike";
   });
 </script>
 
