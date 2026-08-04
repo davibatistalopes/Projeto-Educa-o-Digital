@@ -191,25 +191,23 @@
 
   </main>
 </body>
-<<script>
+<script>
   const btnLike = document.querySelectorAll("button")[0];
   const btnDislike = document.querySelectorAll("button")[1];
 
   const spanLike = btnLike.querySelector("span");
   const spanDislike = btnDislike.querySelector("span");
 
-  // Recupera os votos salvos
-  let likes = localStorage.getItem("likes") || 0;
-  let dislikes = localStorage.getItem("dislikes") || 0;
+  let likes = Number(localStorage.getItem("likes")) || 0;
+  let dislikes = Number(localStorage.getItem("dislikes")) || 0;
   let voto = localStorage.getItem("voto");
 
-  // Mostra os valores salvos
   spanLike.textContent = likes;
   spanDislike.textContent = dislikes;
 
   btnLike.addEventListener("click", function () {
 
-    if (voto) return; // impede votar duas vezes
+    if (voto !== null) return;
 
     likes++;
     spanLike.textContent = likes;
@@ -217,11 +215,13 @@
     localStorage.setItem("likes", likes);
     localStorage.setItem("voto", "like");
 
+    voto = "like"; // trava o voto sem precisar atualizar
   });
+
 
   btnDislike.addEventListener("click", function () {
 
-    if (voto) return; // impede votar duas vezes
+    if (voto !== null) return;
 
     dislikes++;
     spanDislike.textContent = dislikes;
@@ -229,6 +229,7 @@
     localStorage.setItem("dislikes", dislikes);
     localStorage.setItem("voto", "dislike");
 
+    voto = "dislike"; // trava o voto sem precisar atualizar
   });
 </script>
 
