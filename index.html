@@ -191,57 +191,89 @@
 
   </main>
 </body>
-<script>
-  const btnLike = document.querySelectorAll("button")[0];
-  const btnDislike = document.querySelectorAll("button")[1];
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-  const spanLike = btnLike.querySelector("span");
-  const spanDislike = btnDislike.querySelector("span");
+const firebaseConfig = {
+  apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
+  authDomain: "meusitelikes.firebaseapp.com",
+  databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
+  projectId: "meusitelikes",
+  storageBucket: "meusitelikes.firebasestorage.app",
+  messagingSenderId: "1054306776900",
+  appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
+};
 
-  let likes = Number(localStorage.getItem("likes")) || 0;
-  let dislikes = Number(localStorage.getItem("dislikes")) || 0;
-  let voto = localStorage.getItem("voto");
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  spanLike.textContent = likes;
-  spanDislike.textContent = dislikes;
+const btnLike = document.querySelectorAll("button")[0];
+const btnDislike = document.querySelectorAll("button")[1];
 
-  btnLike.addEventListener("click", function () {
-    if (voto === "like") return; // já deu like
+const spanLike = btnLike.querySelector("span");
+const spanDislike = btnDislike.querySelector("span");
 
-    // Se antes era dislike, remove
+let likes = 0;
+let dislikes = 0;
+let voto = localStorage.getItem("voto");
+
+const votosRef = ref(db, "votos");
+
+
+// Carregar votos do Firebase
+onValue(votosRef, (snapshot) => {
+    const dados = snapshot.val();
+
+    likes = dados?.likes || 0;
+    dislikes = dados?.dislikes || 0;
+
+    spanLike.textContent = likes;
+    spanDislike.textContent = dislikes;
+});
+
+
+// Like
+btnLike.addEventListener("click", async () => {
+
+    if (voto === "like") return;
+
     if (voto === "dislike") {
-      dislikes--;
-      spanDislike.textContent = dislikes;
-      localStorage.setItem("dislikes", dislikes);
+        dislikes--;
     }
 
     likes++;
-    spanLike.textContent = likes;
 
-    localStorage.setItem("likes", likes);
+    await set(votosRef, {
+        likes: likes,
+        dislikes: dislikes
+    });
+
     localStorage.setItem("voto", "like");
-
     voto = "like";
-  });
+});
 
-  btnDislike.addEventListener("click", function () {
-    if (voto === "dislike") return; // já deu dislike
 
-    // Se antes era like, remove
+// Dislike
+btnDislike.addEventListener("click", async () => {
+
+    if (voto === "dislike") return;
+
     if (voto === "like") {
-      likes--;
-      spanLike.textContent = likes;
-      localStorage.setItem("likes", likes);
+        likes--;
     }
 
     dislikes++;
-    spanDislike.textContent = dislikes;
 
-    localStorage.setItem("dislikes", dislikes);
+    await set(votosRef, {
+        likes: likes,
+        dislikes: dislikes
+    });
+
     localStorage.setItem("voto", "dislike");
-
     voto = "dislike";
-  });
+});
+
 </script>
 
 </html>
