@@ -38,7 +38,7 @@
       /* Transforma a imagem em bloco */
       margin: 0 auto;
 
-      
+
 
     }
   </style>
@@ -48,23 +48,28 @@
   <header>
     <h1>Meu Blog de Minecraft</h1>
     <p>Vou compartilhar conhecimentos sobre minecraft.</p>
+    <button class="like" data-post="inicio">👍 <span>0</span></button>
+<button class="dislike" data-post="inicio">👎 <span>0</span></button>
+
+    <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
+
   </header>
   <main>
     <div></div>
     <img src="Imagem 1 Blog.png" alt="Logotipo Clássico Do Minecraft">
 
-    <button class="like">👍 <span>0</span></button>
-<button class="dislike">👎 <span>0</span></button>
+    <button class="like" data-post="Imagem">👍 <span>0</span></button>
+<button class="dislike" data-post="Imagem">👎 <span>0</span></button>
 
-<hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
+    <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
 
     <h2>Minecraft: Um Mundo de Criatividade e Aventuras Sem Limites</h2>
     <p>Por: Davi e Guilherme</p>
     <p>Se existe um jogo que conquistou milhões de jogadores ao redor do mundo, esse jogo é Minecraft. Lançado em 2011,
       ele continua sendo um dos maiores sucessos da história dos videogames, oferecendo uma experiência única baseada em
       criatividade, exploração e sobrevivência..</p>
-  <button class="like">👍 <span>0</span></button>
-<button class="dislike">👎 <span>0</span></button>
+   <button class="like" data-post="minecraft">👍 <span>0</span></button>
+<button class="dislike" data-post="minecraft">👎 <span>0</span></button>
 
     <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
     <div></div>
@@ -76,8 +81,8 @@
       Criativo: Tenha acesso ilimitado a blocos e itens para construir livremente sem preocupações.
       Aventura: Experimente mapas criados pela comunidade com objetivos e desafios específicos.
       Espectador: Explore o mundo sem interagir diretamente com ele.</p>
-   <button class="like">👍 <span>0</span></button>
-<button class="dislike">👎 <span>0</span></button>
+    <button class="like" data-post="modos">👍 <span>0</span></button>
+<button class="dislike" data-post="modos">👎 <span>0</span></button>
 
     <!-- Início do Carrossel -->
     <div
@@ -138,8 +143,8 @@
       Guarde recursos importantes em baús.
       Não cave diretamente para baixo para evitar cair em cavernas ou lava.
       Explore diferentes biomas para encontrar materiais raros.:</p>
- <button class="like">👍 <span>0</span></button>
-<button class="dislike">👎 <span>0</span></button>
+ <button class="like" data-post="dicas">👍 <span>0</span></button>
+<button class="dislike" data-post="dicas">👎 <span>0</span></button>
 
     <div>
       <iframe width="560" height="315" src="https://www.youtube.com/embed/JlPkEU40rA8?si=vxGKEyMhiRaRWRZJ"
@@ -169,8 +174,8 @@
       tornando a experiência mais fluida e confiável para todos os jogadores. Com novos conteúdos para exploração, mais
       possibilidades para construtores e avanços técnicos importantes, a atualização reforça o compromisso da Mojang em
       continuar evoluindo o Minecraft com novidades para toda a comunidade.</p>
- <button class="like">👍 <span>0</span></button>
-<button class="dislike">👎 <span>0</span></button>
+   <button class="like" data-post="atualização">👍 <span>0</span></button>
+<button class="dislike" data-post="atualização">👎 <span>0</span></button>
 
     <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
     <div></div>
@@ -201,8 +206,8 @@
       Com esses mods, o Minecraft deixa de ser apenas um jogo de sobrevivência e construção e ganha uma nova
       possibilidade: criar estádios, montar campeonatos, jogar com amigos e até transformar um servidor em uma
       verdadeira liga de futebol dentro do universo dos blocos.</p>
-<button class="like">👍 <span>0</span></button>
-<button class="dislike">👎 <span>0</span></button>
+   <button class="like" data-post="mod de futebol">👍 <span>0</span></button>
+<button class="dislike" data-post="mod de futebol">👎 <span>0</span></button>
 
     <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
     <div></div>
@@ -212,98 +217,77 @@
   </main>
 </body>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {getDatabase, ref, onValue, update, get} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
-  authDomain: "meusitelikes.firebaseapp.com",
-  databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
-  projectId: "meusitelikes",
-  storageBucket: "meusitelikes.firebasestorage.app",
-  messagingSenderId: "1054306776900",
-  appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
+    authDomain: "meusitelikes.firebaseapp.com",
+    databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
+    projectId: "meusitelikes",
+    storageBucket: "meusitelikes.firebasestorage.app",
+    messagingSenderId: "1054306776900",
+    appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-const botoesLike = document.querySelectorAll(".like");
-const botoesDislike = document.querySelectorAll(".dislike");
-
-const votosRef = ref(db, "votos");
-
-let likes = 0;
-let dislikes = 0;
-
-let voto = localStorage.getItem("voto");
+  const botoesLike = document.querySelectorAll(".like");
+  const botoesDislike = document.querySelectorAll(".dislike");
 
 
-// Carregar votos
-onValue(votosRef, (snapshot) => {
-  const dados = snapshot.val();
-
-  likes = dados?.likes || 0;
-  dislikes = dados?.dislikes || 0;
-
+  // Likes
   botoesLike.forEach(botao => {
-    botao.querySelector("span").textContent = likes;
+
+    const post = botao.dataset.post;
+    const votosRef = ref(db, "blog/votos/" + post);
+
+    onValue(votosRef, (snapshot) => {
+      const dados = snapshot.val();
+      botao.querySelector("span").textContent = dados?.likes || 0;
+    });
+
+
+    botao.addEventListener("click", async () => {
+
+      let dados = (await get(votosRef)).val() || {};
+
+      await update(votosRef, {
+        likes: (dados.likes || 0) + 1,
+        dislikes: dados.dislikes || 0
+      });
+
+    });
+
   });
 
+
+
+  // Dislikes
   botoesDislike.forEach(botao => {
-    botao.querySelector("span").textContent = dislikes;
-  });
-});
 
+    const post = botao.dataset.post;
+    const votosRef = ref(db, "blog/votos/" + post);
 
-// Todos os likes
-botoesLike.forEach(botao => {
-
-  botao.addEventListener("click", async () => {
-
-    if (voto === "like") return;
-
-    if (voto === "dislike") {
-      dislikes = Math.max(0, dislikes - 1);
-    }
-
-    likes++;
-
-    await update(votosRef, {
-      likes: likes,
-      dislikes: dislikes
+    onValue(votosRef, (snapshot) => {
+      const dados = snapshot.val();
+      botao.querySelector("span").textContent = dados?.dislikes || 0;
     });
 
-    localStorage.setItem("voto", "like");
-    voto = "like";
-  });
 
-});
+    botao.addEventListener("click", async () => {
 
+      let dados = (await get(votosRef)).val() || {};
 
-// Todos os dislikes
-botoesDislike.forEach(botao => {
+      await update(votosRef, {
+        dislikes: (dados.dislikes || 0) + 1,
+        likes: dados.likes || 0
+      });
 
-  botao.addEventListener("click", async () => {
-
-    if (voto === "dislike") return;
-
-    if (voto === "like") {
-      likes = Math.max(0, likes - 1);
-    }
-
-    dislikes++;
-
-    await update(votosRef, {
-      likes: likes,
-      dislikes: dislikes
     });
 
-    localStorage.setItem("voto", "dislike");
-    voto = "dislike";
   });
-
-});
 
 </script>
 
