@@ -237,7 +237,6 @@
   let usuario = null;
 
 
-  // Login anônimo
   signInAnonymously(auth)
     .then((resultado) => {
 
@@ -275,7 +274,6 @@
     );
 
 
-    // pega voto antigo
     const votoAntigo = (await get(usuarioRef)).val();
 
 
@@ -287,8 +285,26 @@
 
 
 
-    // se clicar no mesmo voto não faz nada
+    // se clicar no mesmo voto, remove ele
     if (votoAntigo === tipo) {
+
+      if (tipo === "like") {
+        likes--;
+      }
+
+      if (tipo === "dislike") {
+        dislikes--;
+      }
+
+
+      await update(votosRef, {
+        likes: Math.max(0, likes),
+        dislikes: Math.max(0, dislikes)
+      });
+
+
+      await set(usuarioRef, null);
+
       return;
     }
 
@@ -323,10 +339,10 @@
 
 
 
-    // salva voto do usuário
     await set(usuarioRef, tipo);
 
   }
+
 
 
 
@@ -375,6 +391,7 @@
 
 
 
+
   // botão like
 
   botoesLike.forEach(botao => {
@@ -386,6 +403,7 @@
     });
 
   });
+
 
 
 
