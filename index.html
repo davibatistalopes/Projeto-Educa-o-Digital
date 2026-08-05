@@ -68,7 +68,7 @@
       Criativo: Tenha acesso ilimitado a blocos e itens para construir livremente sem preocupações.
       Aventura: Experimente mapas criados pela comunidade com objetivos e desafios específicos.
       Espectador: Explore o mundo sem interagir diretamente com ele.</p>
-      <button>👍 <span>0</span></button>
+    <button>👍 <span>0</span></button>
     <button>👎 <span>0</span></button>
 
     <!-- Início do Carrossel -->
@@ -130,7 +130,7 @@
       Guarde recursos importantes em baús.
       Não cave diretamente para baixo para evitar cair em cavernas ou lava.
       Explore diferentes biomas para encontrar materiais raros.:</p>
-      <button>👍 <span>0</span></button>
+    <button>👍 <span>0</span></button>
     <button>👎 <span>0</span></button>
 
     <div>
@@ -161,7 +161,7 @@
       tornando a experiência mais fluida e confiável para todos os jogadores. Com novos conteúdos para exploração, mais
       possibilidades para construtores e avanços técnicos importantes, a atualização reforça o compromisso da Mojang em
       continuar evoluindo o Minecraft com novidades para toda a comunidade.</p>
-      <button>👍 <span>0</span></button>
+    <button>👍 <span>0</span></button>
     <button>👎 <span>0</span></button>
 
     <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
@@ -193,9 +193,9 @@
       Com esses mods, o Minecraft deixa de ser apenas um jogo de sobrevivência e construção e ganha uma nova
       possibilidade: criar estádios, montar campeonatos, jogar com amigos e até transformar um servidor em uma
       verdadeira liga de futebol dentro do universo dos blocos.</p>
-      <button>👍 <span>0</span></button>
+    <button>👍 <span>0</span></button>
     <button>👎 <span>0</span></button>
-    
+
     <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
     <div></div>
 
@@ -204,38 +204,38 @@
   </main>
 </body>
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {getDatabase, ref, onValue, update} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
-  authDomain: "meusitelikes.firebaseapp.com",
-  databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
-  projectId: "meusitelikes",
-  storageBucket: "meusitelikes.firebasestorage.app",
-  messagingSenderId: "1054306776900",
-  appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
-};
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
+    authDomain: "meusitelikes.firebaseapp.com",
+    databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
+    projectId: "meusitelikes",
+    storageBucket: "meusitelikes.firebasestorage.app",
+    messagingSenderId: "1054306776900",
+    appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
+  };
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
 
-const btnLike = document.querySelectorAll("button")[0];
-const btnDislike = document.querySelectorAll("button")[1];
+  const btnLike = document.querySelectorAll("button")[0];
+  const btnDislike = document.querySelectorAll("button")[1];
 
-const spanLike = btnLike.querySelector("span");
-const spanDislike = btnDislike.querySelector("span");
+  const spanLike = btnLike.querySelector("span");
+  const spanDislike = btnDislike.querySelector("span");
 
-let likes = 0;
-let dislikes = 0;
+  let likes = 0;
+  let dislikes = 0;
 
-let voto = localStorage.getItem("voto");
+  let voto = localStorage.getItem("voto");
 
-const votosRef = ref(db, "votos");
+  const votosRef = ref(db, "votos");
 
 
-// Carregar votos do Firebase
-onValue(votosRef, (snapshot) => {
+  // Carregar votos do Firebase
+  onValue(votosRef, (snapshot) => {
     const dados = snapshot.val();
 
     likes = dados?.likes || 0;
@@ -243,49 +243,48 @@ onValue(votosRef, (snapshot) => {
 
     spanLike.textContent = likes;
     spanDislike.textContent = dislikes;
-});
+  });
 
 
-// Like
-btnLike.addEventListener("click", async () => {
+  // Like
+  btnLike.addEventListener("click", async () => {
 
     if (voto === "like") return;
 
     if (voto === "dislike") {
-        dislikes--;
+      dislikes = Math.max(0, dislikes - 1);
     }
 
     likes++;
 
     await update(votosRef, {
-        likes: likes,
-        dislikes: dislikes
+      likes: likes,
+      dislikes: dislikes
     });
 
     localStorage.setItem("voto", "like");
     voto = "like";
-});
+  });
 
 
-// Dislike
-btnDislike.addEventListener("click", async () => {
+  btnDislike.addEventListener("click", async () => {
 
     if (voto === "dislike") return;
 
     if (voto === "like") {
-        likes--;
+      likes = Math.max(0, likes - 1);
     }
 
     dislikes++;
 
     await update(votosRef, {
-        likes: likes,
-        dislikes: dislikes
+      likes: likes,
+      dislikes: dislikes
     });
 
     localStorage.setItem("voto", "dislike");
     voto = "dislike";
-});
+  });
 
 </script>
 
