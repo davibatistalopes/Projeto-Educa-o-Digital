@@ -48,14 +48,14 @@
   <header>
     <h1>Meu Blog de Minecraft</h1>
     <p>Vou compartilhar conhecimentos sobre minecraft.</p>
-    
+
   </header>
   <main>
     <div></div>
     <img src="Imagem 1 Blog.png" alt="Logotipo Clássico Do Minecraft">
 
-    <button class="like" data-post="Imagem">👍 <span>0</span></button>
-<button class="dislike" data-post="Imagem">👎 <span>0</span></button>
+    <button class="like" data-post="Imagem Do Inicio">👍 <span>0</span></button>
+<button class="dislike" data-post="Imagem Do Inicio">👎 <span>0</span></button>
 
     <hr style="border: 0; border-top: 1px solid #bd346b; margin: 30px auto; max-width: 90%; opacity: 0.5;">
 
@@ -213,77 +213,132 @@
   </main>
 </body>
 <script type="module">
-  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-  import {getDatabase, ref, onValue, update, get} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import {getDatabase, ref, onValue, update, get} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
-    authDomain: "meusitelikes.firebaseapp.com",
-    databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
-    projectId: "meusitelikes",
-    storageBucket: "meusitelikes.firebasestorage.app",
-    messagingSenderId: "1054306776900",
-    appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
+  authDomain: "meusitelikes.firebaseapp.com",
+  databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
+  projectId: "meusitelikes",
+  storageBucket: "meusitelikes.firebasestorage.app",
+  messagingSenderId: "1054306776900",
+  appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  const botoesLike = document.querySelectorAll(".like");
-  const botoesDislike = document.querySelectorAll(".dislike");
+const botoesLike = document.querySelectorAll(".like");
+const botoesDislike = document.querySelectorAll(".dislike");
 
 
-  // Likes
-  botoesLike.forEach(botao => {
+function votar(post, tipo) {
 
-    const post = botao.dataset.post;
-    const votosRef = ref(db, "blog/votos/" + post);
+  const votosRef = ref(db, "blog/votos/" + post);
 
-    onValue(votosRef, (snapshot) => {
-      const dados = snapshot.val();
-      botao.querySelector("span").textContent = dados?.likes || 0;
+  let votoAtual = localStorage.getItem("voto_" + post);
+
+
+  if (votoAtual === tipo) {
+    return; // já votou nesse botão
+  }
+
+
+  get(votosRef).then(snapshot => {
+
+    let dados = snapshot.val() || {};
+
+    let likes = dados.likes || 0;
+    let dislikes = dados.dislikes || 0;
+
+
+    // remove voto antigo
+    if (votoAtual === "like") {
+      likes = Math.max(0, likes - 1);
+    }
+
+    if (votoAtual === "dislike") {
+      dislikes = Math.max(0, dislikes - 1);
+    }
+
+
+    // adiciona novo voto
+    if (tipo === "like") {
+      likes++;
+    }
+
+    if (tipo === "dislike") {
+      dislikes++;
+    }
+
+
+    update(votosRef, {
+      likes: likes,
+      dislikes: dislikes
     });
 
 
-    botao.addEventListener("click", async () => {
+    localStorage.setItem("voto_" + post, tipo);
 
-      let dados = (await get(votosRef)).val() || {};
+  });
 
-      await update(votosRef, {
-        likes: (dados.likes || 0) + 1,
-        dislikes: dados.dislikes || 0
-      });
+}
 
+
+// mostrar números
+
+document.querySelectorAll(".like, .dislike").forEach(botao => {
+
+  const post = botao.dataset.post;
+  const votosRef = ref(db, "blog/votos/" + post);
+
+
+  onValue(votosRef, snapshot => {
+
+    const dados = snapshot.val() || {};
+
+    const likes = document.querySelectorAll(
+      `.like[data-post="${post}"] span`
+    );
+
+    const dislikes = document.querySelectorAll(
+      `.dislike[data-post="${post}"] span`
+    );
+
+
+    likes.forEach(span => {
+      span.textContent = dados.likes || 0;
+    });
+
+
+    dislikes.forEach(span => {
+      span.textContent = dados.dislikes || 0;
     });
 
   });
 
+});
 
 
-  // Dislikes
-  botoesDislike.forEach(botao => {
+// clique no like
+botoesLike.forEach(botao => {
 
-    const post = botao.dataset.post;
-    const votosRef = ref(db, "blog/votos/" + post);
-
-    onValue(votosRef, (snapshot) => {
-      const dados = snapshot.val();
-      botao.querySelector("span").textContent = dados?.dislikes || 0;
-    });
-
-
-    botao.addEventListener("click", async () => {
-
-      let dados = (await get(votosRef)).val() || {};
-
-      await update(votosRef, {
-        dislikes: (dados.dislikes || 0) + 1,
-        likes: dados.likes || 0
-      });
-
-    });
-
+  botao.addEventListener("click", () => {
+    votar(botao.dataset.post, "like");
   });
+
+});
+
+
+// clique no dislike
+botoesDislike.forEach(botao => {
+
+  botao.addEventListener("click", () => {
+    votar(botao.dataset.post, "dislike");
+  });
+
+});
 
 </script>
 
