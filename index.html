@@ -193,7 +193,7 @@
 </body>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-import { getDatabase, ref, onValue, set } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
@@ -216,6 +216,7 @@ const spanDislike = btnDislike.querySelector("span");
 
 let likes = 0;
 let dislikes = 0;
+
 let voto = localStorage.getItem("voto");
 
 const votosRef = ref(db, "votos");
@@ -244,7 +245,7 @@ btnLike.addEventListener("click", async () => {
 
     likes++;
 
-    await set(votosRef, {
+    await update(votosRef, {
         likes: likes,
         dislikes: dislikes
     });
@@ -265,7 +266,7 @@ btnDislike.addEventListener("click", async () => {
 
     dislikes++;
 
-    await set(votosRef, {
+    await update(votosRef, {
         likes: likes,
         dislikes: dislikes
     });
