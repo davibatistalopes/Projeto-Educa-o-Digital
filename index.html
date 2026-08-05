@@ -212,50 +212,54 @@
   </main>
 </body>
 <script type="module">
-  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-  import {getDatabase, ref, onValue, update} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+import { getDatabase, ref, onValue, update } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
-    authDomain: "meusitelikes.firebaseapp.com",
-    databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
-    projectId: "meusitelikes",
-    storageBucket: "meusitelikes.firebasestorage.app",
-    messagingSenderId: "1054306776900",
-    appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
-  };
+const firebaseConfig = {
+  apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
+  authDomain: "meusitelikes.firebaseapp.com",
+  databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
+  projectId: "meusitelikes",
+  storageBucket: "meusitelikes.firebasestorage.app",
+  messagingSenderId: "1054306776900",
+  appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
+};
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-  const btnLike = document.querySelectorAll("button")[0];
-  const btnDislike = document.querySelectorAll("button")[1];
+const botoesLike = document.querySelectorAll(".like");
+const botoesDislike = document.querySelectorAll(".dislike");
 
-  const spanLike = btnLike.querySelector("span");
-  const spanDislike = btnDislike.querySelector("span");
+const votosRef = ref(db, "votos");
 
-  let likes = 0;
-  let dislikes = 0;
+let likes = 0;
+let dislikes = 0;
 
-  let voto = localStorage.getItem("voto");
-
-  const votosRef = ref(db, "votos");
+let voto = localStorage.getItem("voto");
 
 
-  // Carregar votos do Firebase
-  onValue(votosRef, (snapshot) => {
-    const dados = snapshot.val();
+// Carregar votos
+onValue(votosRef, (snapshot) => {
+  const dados = snapshot.val();
 
-    likes = dados?.likes || 0;
-    dislikes = dados?.dislikes || 0;
+  likes = dados?.likes || 0;
+  dislikes = dados?.dislikes || 0;
 
-    spanLike.textContent = likes;
-    spanDislike.textContent = dislikes;
+  botoesLike.forEach(botao => {
+    botao.querySelector("span").textContent = likes;
   });
 
+  botoesDislike.forEach(botao => {
+    botao.querySelector("span").textContent = dislikes;
+  });
+});
 
-  // Like
-  btnLike.addEventListener("click", async () => {
+
+// Todos os likes
+botoesLike.forEach(botao => {
+
+  botao.addEventListener("click", async () => {
 
     if (voto === "like") return;
 
@@ -274,8 +278,13 @@
     voto = "like";
   });
 
+});
 
-  btnDislike.addEventListener("click", async () => {
+
+// Todos os dislikes
+botoesDislike.forEach(botao => {
+
+  botao.addEventListener("click", async () => {
 
     if (voto === "dislike") return;
 
@@ -293,6 +302,8 @@
     localStorage.setItem("voto", "dislike");
     voto = "dislike";
   });
+
+});
 
 </script>
 
