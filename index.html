@@ -301,59 +301,38 @@
 
 
 
-   async function votar(post, tipo) {
+  async function votar(post, tipo) {
   if (!usuario) {
     alert("Carregando usuário...");
     return;
   }
 
   const votosRef = ref(db, "blog/votos/" + post);
-  const usuarioRef = ref(db, "blog/votos/" + post + "/usuarios/" + usuario.uid);
 
-  // trava para impedir dois cliques ao mesmo tempo
-  if (votar.bloqueado) return;
-  votar.bloqueado = true;
+  await runTransaction(votosRef, (dados) => {
+    if (!dados) dados = { likes: 0, dislikes: 0, usuarios: {} };
 
-  try {
+    if (!dados.usuarios) dados.usuarios = {};
 
-    const votoAntigo = (await get(usuarioRef)).val();
-    const dados = (await get(votosRef)).val() || {};
-
-    let likes = dados.likes || 0;
-    let dislikes = dados.dislikes || 0;
+    const votoAntigo = dados.usuarios[usuario.uid];
 
     if (votoAntigo === tipo) {
+      if (tipo === "like") dados.likes--;
+      else dados.dislikes--;
 
-      if (tipo === "like") likes--;
-      else dislikes--;
-
-      await update(votosRef, {
-        likes: Math.max(0, likes),
-        dislikes: Math.max(0, dislikes)
-      });
-
-      await set(usuarioRef, null);
-
+      delete dados.usuarios[usuario.uid];
     } else {
+      if (votoAntigo === "like") dados.likes--;
+      if (votoAntigo === "dislike") dados.dislikes--;
 
-      if (votoAntigo === "like") likes--;
-      if (votoAntigo === "dislike") dislikes--;
+      if (tipo === "like") dados.likes++;
+      else dados.dislikes++;
 
-      if (tipo === "like") likes++;
-      else dislikes++;
-
-      await update(votosRef, {
-        likes: Math.max(0, likes),
-        dislikes: Math.max(0, dislikes)
-      });
-
-      await set(usuarioRef, tipo);
-
+      dados.usuarios[usuario.uid] = tipo;
     }
 
-  } finally {
-    votar.bloqueado = false;
-  }
+    return dados;
+  });
 }
 
 
