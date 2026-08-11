@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
   <title>BLOG_MINECRAFT_</title>
 
   <style>
@@ -265,174 +264,162 @@
   </main>
 </body>
 <script type="module">
-    import { initializeApp } from "[gstatic.com](https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js)";
-    import {
-      getDatabase,
-      ref,
-      onValue,
-      runTransaction
-    } from "[gstatic.com](https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js)";
-    import {
-      getAuth,
-      signInAnonymously
-    } from "[gstatic.com](https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js)";
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {getDatabase, ref, onValue, get, set, update, runTransaction} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+  import {getAuth, signInAnonymously} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
-      authDomain: "meusitelikes.firebaseapp.com",
-      databaseURL: "[meusitelikes-default-rtdb.firebaseio.com](https://meusitelikes-default-rtdb.firebaseio.com)",
-      projectId: "meusitelikes",
-      storageBucket: "meusitelikes.firebasestorage.app",
-      messagingSenderId: "1054306776900",
-      appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
-    };
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const auth = getAuth(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyAp7fSLLHloP5sJovokNIFgeCNiw2nmdoU",
+    authDomain: "meusitelikes.firebaseapp.com",
+    databaseURL: "https://meusitelikes-default-rtdb.firebaseio.com",
+    projectId: "meusitelikes",
+    storageBucket: "meusitelikes.firebasestorage.app",
+    messagingSenderId: "1054306776900",
+    appId: "1:1054306776900:web:d6d4d7dd66f6a35dd00911"
+  };
 
-    let usuario = null;
 
-    const botoes = document.querySelectorAll(".voto");
-    const posts = new Set(
-      [...botoes].map((botao) => botao.dataset.post)
-    );
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+  const auth = getAuth(app);
 
-    function bloquearBotoes(bloquear) {
-      botoes.forEach((botao) => {
-        botao.disabled = bloquear;
-      });
-    }
 
-    bloquearBotoes(true);
+  let usuario = null;
 
-    try {
-      const resultado = await signInAnonymously(auth);
+
+  signInAnonymously(auth)
+    .then((resultado) => {
+
       usuario = resultado.user;
-      bloquearBotoes(false);
+
       console.log("Usuário conectado:", usuario.uid);
-    } catch (erro) {
-      console.error("Erro no login anônimo:", erro);
-      alert("Não foi possível conectar ao sistema de votos.");
-    }
 
-    async function votar(post, tipo) {
-      if (!usuario) {
-        alert("A conexão com o sistema de votos ainda não foi concluída.");
-        return;
-      }
+    })
+    .catch((erro) => {
 
-      const votosRef = ref(db, `blog/votos/${post}`);
+      console.log("Erro login:", erro);
 
-      try {
-        await runTransaction(votosRef, (dadosAtuais) => {
-          const dados = dadosAtuais || {
-            likes: 0,
-            dislikes: 0,
-            usuarios: {}
-          };
-
-          dados.likes = Math.max(0, Number(dados.likes) || 0);
-          dados.dislikes = Math.max(0, Number(dados.dislikes) || 0);
-          dados.usuarios = dados.usuarios || {};
-
-          const votoAntigo = dados.usuarios[usuario.uid];
-
-          if (votoAntigo === tipo) {
-            if (tipo === "like") {
-              dados.likes = Math.max(0, dados.likes - 1);
-            } else {
-              dados.dislikes = Math.max(0, dados.dislikes - 1);
-            }
-
-            delete dados.usuarios[usuario.uid];
-            return dados;
-          }
-
-          if (votoAntigo === "like") {
-            dados.likes = Math.max(0, dados.likes - 1);
-          }
-
-          if (votoAntigo === "dislike") {
-            dados.dislikes = Math.max(0, dados.dislikes - 1);
-          }
-
-          if (tipo === "like") {
-            dados.likes++;
-          } else {
-            dados.dislikes++;
-          }
-
-          dados.usuarios[usuario.uid] = tipo;
-
-          return dados;
-        });
-      } catch (erro) {
-        console.error("Erro ao registrar voto:", erro);
-        alert("Não foi possível registrar seu voto.");
-      }
-    }
-
-    function atualizarPost(post, dados) {
-      const likes = Number(dados.likes) || 0;
-      const dislikes = Number(dados.dislikes) || 0;
-      const votoDoUsuario = usuario
-        ? dados.usuarios?.[usuario.uid]
-        : null;
-
-      const botaoLike = document.querySelector(
-        `.like[data-post="${post}"]`
-      );
-
-      const botaoDislike = document.querySelector(
-        `.dislike[data-post="${post}"]`
-      );
-
-      if (botaoLike) {
-        botaoLike.querySelector("span").textContent = likes;
-        botaoLike.classList.toggle("ativo", votoDoUsuario === "like");
-        botaoLike.setAttribute(
-          "aria-pressed",
-          String(votoDoUsuario === "like")
-        );
-      }
-
-      if (botaoDislike) {
-        botaoDislike.querySelector("span").textContent = dislikes;
-        botaoDislike.classList.toggle(
-          "ativo",
-          votoDoUsuario === "dislike"
-        );
-        botaoDislike.setAttribute(
-          "aria-pressed",
-          String(votoDoUsuario === "dislike")
-        );
-      }
-    }
-
-    posts.forEach((post) => {
-      const votosRef = ref(db, `blog/votos/${post}`);
-
-      onValue(
-        votosRef,
-        (snapshot) => {
-          atualizarPost(post, snapshot.val() || {});
-        },
-        (erro) => {
-          console.error(`Erro ao carregar votos de ${post}:`, erro);
-        }
-      );
     });
 
-    botoes.forEach((botao) => {
-      botao.addEventListener("click", async () => {
-        const tipo = botao.classList.contains("like")
-          ? "like"
-          : "dislike";
 
-        await votar(botao.dataset.post, tipo);
+
+  const botoesLike = document.querySelectorAll(".like");
+  const botoesDislike = document.querySelectorAll(".dislike");
+
+
+
+  async function votar(post, tipo) {
+    if (!usuario) {
+      alert("Carregando usuário...");
+      return;
+    }
+
+    const votosRef = ref(db, "blog/votos/" + post);
+
+    await runTransaction(votosRef, (dados) => {
+      if (!dados) dados = {likes: 0, dislikes: 0, usuarios: {}};
+
+      if (!dados.usuarios) dados.usuarios = {};
+
+      const votoAntigo = dados.usuarios[usuario.uid];
+
+      if (votoAntigo === tipo) {
+        if (tipo === "like") dados.likes--;
+        else dados.dislikes--;
+
+        delete dados.usuarios[usuario.uid];
+      } else {
+        if (votoAntigo === "like") dados.likes--;
+        if (votoAntigo === "dislike") dados.dislikes--;
+
+        if (tipo === "like") dados.likes++;
+        else dados.dislikes++;
+
+        dados.usuarios[usuario.uid] = tipo;
+      }
+
+      return dados;
+    });
+  }
+
+
+
+
+
+  // mostrar números
+
+  document.querySelectorAll(".like,.dislike").forEach(botao => {
+
+
+    const post = botao.dataset.post;
+
+    const votosRef = ref(db, "blog/votos/" + post);
+
+
+
+    onValue(votosRef, (snapshot) => {
+
+
+      const dados = snapshot.val() || {};
+
+
+      document.querySelectorAll(
+        `.like[data-post="${post}"] span`
+      ).forEach(span => {
+
+        span.textContent = dados.likes || 0;
+
       });
-    });
-  </script>
 
+
+
+      document.querySelectorAll(
+        `.dislike[data-post="${post}"] span`
+      ).forEach(span => {
+
+        span.textContent = dados.dislikes || 0;
+
+      });
+
+
+    });
+
+
+  });
+
+
+
+
+
+  // botão like
+
+  botoesLike.forEach(botao => {
+
+    botao.addEventListener("click", () => {
+
+      votar(botao.dataset.post, "like");
+
+    });
+
+  });
+
+
+
+
+
+  // botão dislike
+
+  botoesDislike.forEach(botao => {
+
+    botao.addEventListener("click", () => {
+
+      votar(botao.dataset.post, "dislike");
+
+    });
+
+  });
+
+
+</script>
 </html>
