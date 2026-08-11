@@ -263,10 +263,21 @@
 
   </main>
 </body>
+```html
 <script type="module">
-  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-  import {getDatabase, ref, onValue, get, set, update, runTransaction} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
-  import {getAuth, signInAnonymously} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+
+  import {
+    getDatabase,
+    ref,
+    onValue,
+    runTransaction
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-database.js";
+
+  import {
+    getAuth,
+    signInAnonymously
+  } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-auth.js";
 
 
   const firebaseConfig = {
@@ -288,6 +299,7 @@
   let usuario = null;
 
 
+  // LOGIN ANÔNIMO
   signInAnonymously(auth)
     .then((resultado) => {
 
@@ -298,128 +310,173 @@
     })
     .catch((erro) => {
 
-      console.log("Erro login:", erro);
+      console.error("Erro login:", erro);
 
     });
 
 
-
+  // BOTÕES
   const botoesLike = document.querySelectorAll(".like");
   const botoesDislike = document.querySelectorAll(".dislike");
 
 
-
+  // FUNÇÃO DE VOTO
   async function votar(post, tipo) {
+
     if (!usuario) {
       alert("Carregando usuário...");
       return;
     }
 
+
     const votosRef = ref(db, "blog/votos/" + post);
 
-    await runTransaction(votosRef, (dados) => {
-      if (!dados) dados = {likes: 0, dislikes: 0, usuarios: {}};
 
-      if (!dados.usuarios) dados.usuarios = {};
+    try {
 
-      const votoAntigo = dados.usuarios[usuario.uid];
+      await runTransaction(votosRef, (dados) => {
 
-      if (votoAntigo === tipo) {
-        if (tipo === "like") dados.likes--;
-        else dados.dislikes--;
+        if (!dados) {
+          dados = {
+            likes: 0,
+            dislikes: 0,
+            usuarios: {}
+          };
+        }
 
-        delete dados.usuarios[usuario.uid];
-      } else {
-        if (votoAntigo === "like") dados.likes--;
-        if (votoAntigo === "dislike") dados.dislikes--;
 
-        if (tipo === "like") dados.likes++;
-        else dados.dislikes++;
+        dados.likes = Number(dados.likes) || 0;
+        dados.dislikes = Number(dados.dislikes) || 0;
 
-        dados.usuarios[usuario.uid] = tipo;
-      }
+        if (!dados.usuarios) {
+          dados.usuarios = {};
+        }
 
-      return dados;
-    });
+
+        const votoAntigo = dados.usuarios[usuario.uid];
+
+
+        // Clicou novamente no mesmo voto
+        if (votoAntigo === tipo) {
+
+          if (tipo === "like") {
+            dados.likes = Math.max(0, dados.likes - 1);
+          } else {
+            dados.dislikes = Math.max(0, dados.dislikes - 1);
+          }
+
+          delete dados.usuarios[usuario.uid];
+
+        }
+
+
+        // Novo voto ou mudança de voto
+        else {
+
+          if (votoAntigo === "like") {
+            dados.likes = Math.max(0, dados.likes - 1);
+          }
+
+          if (votoAntigo === "dislike") {
+            dados.dislikes = Math.max(0, dados.dislikes - 1);
+          }
+
+
+          if (tipo === "like") {
+            dados.likes++;
+          } else {
+            dados.dislikes++;
+          }
+
+
+          dados.usuarios[usuario.uid] = tipo;
+
+        }
+
+
+        return dados;
+
+      });
+
+    } catch (erro) {
+
+      console.error("Erro ao votar:", erro);
+
+      alert("Não foi possível registrar seu voto.");
+
+    }
+
   }
 
 
-
-
-
-  // mostrar números
-
-  document.querySelectorAll(".like,.dislike").forEach(botao => {
-
+  // MOSTRAR NÚMEROS DOS VOTOS
+  document.querySelectorAll(".like, .dislike").forEach((botao) => {
 
     const post = botao.dataset.post;
 
     const votosRef = ref(db, "blog/votos/" + post);
 
 
-
     onValue(votosRef, (snapshot) => {
-
 
       const dados = snapshot.val() || {};
 
 
+      // MOSTRAR LIKES
       document.querySelectorAll(
         `.like[data-post="${post}"] span`
-      ).forEach(span => {
+      ).forEach((span) => {
 
-        span.textContent = dados.likes || 0;
+        span.textContent = Number(dados.likes) || 0;
 
       });
 
 
-
+      // MOSTRAR DISLIKES
       document.querySelectorAll(
         `.dislike[data-post="${post}"] span`
-      ).forEach(span => {
+      ).forEach((span) => {
 
-        span.textContent = dados.dislikes || 0;
+        span.textContent = Number(dados.dislikes) || 0;
 
       });
 
-
     });
-
 
   });
 
 
-
-
-
-  // botão like
-
-  botoesLike.forEach(botao => {
+  // BOTÃO LIKE
+  botoesLike.forEach((botao) => {
 
     botao.addEventListener("click", () => {
 
-      votar(botao.dataset.post, "like");
+      votar(
+        botao.dataset.post,
+        "like"
+      );
 
     });
 
   });
 
 
-
-
-
-  // botão dislike
-
-  botoesDislike.forEach(botao => {
+  // BOTÃO DISLIKE
+  botoesDislike.forEach((botao) => {
 
     botao.addEventListener("click", () => {
 
-      votar(botao.dataset.post, "dislike");
+      votar(
+        botao.dataset.post,
+        "dislike"
+      );
 
     });
 
   });
-
 
 </script>
+```
+
+
 </html>
