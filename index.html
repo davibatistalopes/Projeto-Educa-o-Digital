@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,6 +57,11 @@
     <img src="Imagem 1 Blog.png" alt="Logotipo Clássico Do Minecraft">
 
     <div class="post"></div>
+
+
+    <audio controls>
+      <source src="Podcast.mp3" type="audio/mpeg">
+    </audio>
 
     <button class="like" data-post="Imagem Do Inicio">👍 <span>0</span></button>
     <button class="dislike" data-post="Imagem Do Inicio">👎 <span>0</span></button>
@@ -265,7 +271,7 @@
 </body>
 ```html
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+  import {initializeApp} from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
 
   import {
     getDatabase,
